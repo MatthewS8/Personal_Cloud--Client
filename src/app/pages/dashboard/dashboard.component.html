@@ -1,0 +1,132 @@
+<div class="flex justify-center items-center p-8">
+  <table class="min-w-full bg-white">
+    <thead>
+      <tr>
+        <th
+          class="py-2 px-4 border-b-2 border-gray-300 text-left leading-tight"
+        >
+          Name
+        </th>
+        <th
+          class="py-2 px-4 border-b-2 border-gray-300 text-left leading-tight"
+        >
+          Created At
+        </th>
+        <th
+          class="py-2 px-4 border-b-2 border-gray-300 text-left leading-tight"
+        >
+          Modified At
+        </th>
+        <th
+          class="py-2 px-4 border-b-2 border-gray-300 text-left leading-tight"
+        >
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (element of myData; track element.uuid) {
+      <tr>
+        <td class="py-2 px-4 border-b border-gray-300">
+          <div
+            class="text-blue-500 underline cursor-pointer"
+            (click)="openInANewTab(element.uuid)"
+          >
+            {{ element.fileName }}
+          </div>
+        </td>
+        <td class="py-2 px-4 border-b border-gray-300">
+          {{ element.createdAt }}
+        </td>
+        <td class="py-2 px-4 border-b border-gray-300">
+          {{ element.updatedAt }}
+        </td>
+        <td class="py-2 px-4 border-b border-gray-300">
+          <button
+            class="text-red-500 hover:text-red-700"
+            (click)="onDelete(element.uuid)"
+          >
+            <!-- TODO: insert trash bin icon here -->
+            Delete
+          </button>
+          <button
+            class="text-blue-500 hover:text-blue-700 pl-4"
+            (click)="onDownload(element.uuid)"
+          >
+            <!-- TODO: insert download icon here -->
+            Download
+          </button>
+        </td>
+      </tr>
+      } @empty {
+      <tr>
+        <td class="py-2 px-4 border-b border-gray-300" colspan="4">
+          No data available
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="flex flex-col items-center">
+  <button
+    class="bg-blue-500 text-white py-2 px-4 rounded mt-2"
+    (click)="openUploadModal()"
+  >
+    Browse File
+  </button>
+</div>
+
+<!-- Modal -->
+<div
+  *ngIf="isModalOpen"
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75"
+>
+  <div class="bg-white p-8 rounded shadow-lg h-3/4 w-3/4">
+    <h2 class="text-xl mb-4">Upload Files</h2>
+    <app-dropzone (filesUploaded)="onFilesDropped($event)">
+      <div class="mt-4">
+        <ul class="flex flex-wrap">
+          @for (file of uploadedFiles; track file.name) {
+            <li class="mr-4 mb-4">
+              <app-file-card [title]="file.name">
+                <div #action>
+                  <button class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 border border-black-500 text-white p-1 rounded hidden group-hover:block" (click)="deleteElement(file.name)">
+                    <img src="assets/bin-icon.svg" alt="delete" class="w-4 h-4">
+                  </button>
+                </div>
+              </app-file-card>
+            </li>
+          }
+        </ul>
+      </div>
+      <div #content class="flex flex-col justify-center items-center h-full">
+        <p>Drop your files here!</p>
+        <label for="file-upload" class="custom-file-upload">
+          Browse
+          <input
+            id="file-upload"
+            type="file"
+            (change)="onFileSelected($event)"
+            multiple
+          />
+        </label>
+      </div>
+    </app-dropzone>
+    <div class="mt-4 flex justify-end">
+      <button
+        class="bg-red-500 text-white py-2 px-4 rounded mr-2"
+        (click)="onCancelClicked()"
+      >
+        Cancel
+      </button>
+      <button
+        [disabled]="uploadedFiles!!.length === 0"
+        class="bg-green-500 text-white py-2 px-4 rounded"
+        (click)="onUploadClicked()"
+      >
+        Upload
+      </button>
+    </div>
+  </div>
+</div>
