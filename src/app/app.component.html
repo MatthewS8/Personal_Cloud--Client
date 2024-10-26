@@ -1,11 +1,18 @@
 <header>
-  <button id="theme-toggle" class="absolute top-2.5 right-2.5 bg-none border-none cursor-pointer" (click)="onButtonClicked()">
-    Click me
-  </button>
+  <!-- FIXME -->
+  <!-- <button id="theme-toggle" class="absolute top-2.5 right-2.5 bg-none border-none cursor-pointer" (click)="toggleTheme()">
+     Light/Dark
+  </button> -->
 </header>
+<body class="light-theme">
+  <router-outlet></router-outlet>
+</body>
 
-<router-outlet></router-outlet>
 
-<footer class="absolute bottom-2.5 w-full text-center text-gray-500">
-  Created by Matteo Stefanelli &copy; 2023 All Rights Reserved
+<footer class="absolute bottom-2.5 w-full text-center text-gray-500 flex justify-center items-center space-x-2">
+  <span>Created by Matteo Stefanelli</span>
+  <a [href]="repoLink" class="flex items-center">
+    <img class="h-5 inline-block" src="assets/github-brands-solid.svg" />
+  </a>
+  <span>2024 MIT License</span>
 </footer>

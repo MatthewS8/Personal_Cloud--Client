@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ThemeService } from './theme.service';
+import { ThemeService } from '@services/theme.service';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
+  providers: [ThemeService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
   title = 'Personal_Cloud';
+  repoLink = 'https://github.com/MatthewS8'
 
   constructor(private themeService: ThemeService) {}
 
@@ -18,19 +21,9 @@ export class AppComponent implements OnInit {
     // this.updateThemeIcon();
   }
 
-  private updateThemeIcon() {
-    const themeIcon = document.getElementById('theme-icon') as HTMLImageElement;
-    if (this.themeService.getTheme() === 'light') {
-      themeIcon.src = '../assets/sun.svg';
-    } else {
-      themeIcon.src = './assets/moon.svg';
-    }
-  }
-
-  public onButtonClicked() {
+  public toggleTheme() {
     console.log('Button clicked');
-    const newTheme = this.themeService.getTheme() === 'light' ? 'dark' : 'light';
-    this.themeService.setTheme(newTheme);
+    this.themeService.toggleTheme();
     // this.updateThemeIcon();
   }
 }

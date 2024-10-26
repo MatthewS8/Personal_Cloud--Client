@@ -3,16 +3,17 @@
 @tailwind components;
 @tailwind utilities;
 :root {
-    --primary-color: #ffffff;
-    --background-color: #f0f0f0;
+    --primary-color: lightblue;
+    --background-color: #f6f6f6;
     --text-color: #000000;
   }
   
 [data-theme="dark"] {
---primary-color: #000000;
+--primary-color: #4800f0;
 --background-color: #121212;
 --text-color: #ffffff;
 }
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
