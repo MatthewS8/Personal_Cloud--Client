@@ -1,0 +1,62 @@
+<div class="flex justify-center items-center h-screen">
+  <div class="border border-gray-300 p-5 rounded-lg shadow-md text-center w-72">
+    <h2 class="text-xl font-semibold mb-4">
+      Welcome to my personal cloud
+    </h2>
+    @if(error !== '') {
+    <div
+      class="mb-4 p-2 w-full text-red-700 bg-red-100 border border-red-300 rounded-md"
+    >
+      <span>{{ error }}</span>
+    </div>
+    }
+    <form (ngSubmit)="onRegisterClicked()" #registerForm="ngForm">
+      <input
+        type="text"
+        placeholder="Username"
+        class="mb-2 p-2 w-full border border-gray-300 rounded-md"
+        [(ngModel)]="credentials.username"
+        name="username"
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        class="mb-2 p-2 w-full border border-gray-300 rounded-md"
+        [(ngModel)]="credentials.password"
+        (ngModelChange)="validatePassword()"
+        name="password"
+        required
+      />
+      @if(passwordError) {
+      <div
+        class="mb-4 p-2 w-full text-red-700 bg-red-100 border border-red-300 rounded-md"
+      >
+        <span>{{ passwordError }}</span>
+      </div>
+      }
+      <input
+        type="password"
+        placeholder="Password again"
+        class="mb-2 p-2 w-full border border-gray-300 rounded-md"
+        [(ngModel)]="repeatedPassword"
+        name="repeatedPassword"
+        required
+      />
+      @if(credentials.password !== repeatedPassword && repeatedPassword) {
+      <div
+        class="mb-4 p-2 w-full text-red-700 bg-red-100 border border-red-300 rounded-md"
+      >
+        <span>Passwords must match</span>
+      </div>
+      }
+      <button
+        type="submit"
+        class="p-2 w-full bg-green-500 text-white rounded-md hover:bg-green-600"
+        [disabled]="!registerForm.form.valid || credentials.password !== repeatedPassword"
+      >
+        Register
+      </button>
+    </form>
+  </div>
+</div>

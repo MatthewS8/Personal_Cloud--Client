@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,9 @@ import { FormsModule } from '@angular/forms';
 })
 export class LoginComponent {
   public credentials = { username: '', password: '' };
+  public isRegistering = false;
   public error = '';
+  public passwordError = '';
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -25,22 +27,12 @@ export class LoginComponent {
         this.error = '';
       },
       error: (error) => {
-        console.error('daym', error);
-        this.error = error || '';
+        this.error = error.error || '';
       }
     });
   }
 
-  onRegisterClicked() {
-    this.authService.register(this.credentials.username, this.credentials.password).subscribe({
-      next: (result) => {
-        console.log('register result', result);
-        this.onLoginClicked();
-      },
-      error: (error) => {
-        console.error('reg', error);
-        this.error = error?.error || '';
-      }
-    });
+  onRegisterRequested() {
+    this.router.navigate(['/register']);
   }
 }
