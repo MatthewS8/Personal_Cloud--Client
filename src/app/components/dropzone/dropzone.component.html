@@ -1,0 +1,11 @@
+<div
+  class="drop-zone"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <ng-content></ng-content>
+  @if (!hasContent) {
+    <p>Drag and drop files here</p>
+  }
+</div>

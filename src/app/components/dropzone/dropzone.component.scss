@@ -1,0 +1,15 @@
+.drop-zone {
+    width: 100%;
+    height: 80%;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #ccc;
+  }
+  
+  .drop-zone.dragover {
+    border-color: #000;
+    color: #000;
+  }
