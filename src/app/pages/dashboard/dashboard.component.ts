@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         window.open(url, '_blank');
         // FIXME If the resource is a video, the url will be revoked before the video is played
-        window.URL.revokeObjectURL(url); 
+        window.URL.revokeObjectURL(url);
       },
       error: (error) => {
         console.error('Download failed', error);
@@ -101,8 +101,7 @@ export class DashboardComponent implements OnInit {
       const filesToUploadChunks = this.chuck(this.uploadedFiles, 10);
       filesToUploadChunks.forEach((filesChunk) => {
         this.dataService
-          // .uploadData(filesChunk)
-          .sendFile(filesChunk[0])
+          .uploadData(filesChunk)
           .then((data) => {
             data.subscribe((data2) => console.log(data2));
           })

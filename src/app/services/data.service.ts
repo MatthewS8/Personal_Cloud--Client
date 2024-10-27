@@ -3,6 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import * as pako from 'pako';
 
+
+interface EncryptedData {
+  iv: number[];
+  encrypted: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -77,29 +83,24 @@ export class DataService {
       true,
       ['encrypt', 'decrypt']
     );
-  }  
+  }
 
   async sendSessionKey(): Promise<Observable<any>> {
     const publicKeyPem = this.getServerPublicKey();
     const publicKey = await this.importPublicKey(publicKeyPem);
-    // this.sessionKey = await this.generateSessionKey();
-    this.sessionKey = await this.importPredefinedKey('TestKey123456789');
+    this.sessionKey = await this.generateSessionKey();
     const symmetricKeyRaw = await crypto.subtle.exportKey('raw', this.sessionKey);
-    const symmetricKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(symmetricKeyRaw)));
-    console.log('Generated Session Key (Base64): ', symmetricKeyBase64);
-    
-    const encryptedKey = await crypto.subtle.encrypt( 
+
+    const encryptedKey = await crypto.subtle.encrypt(
       { name: 'RSA-OAEP' },
       publicKey,
       symmetricKeyRaw
     );
-    
+
     const encryptedKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(encryptedKey)));
 
     return this.postSessionKey(encryptedKeyBase64);
   }
-
-  
 
   async generateSessionKey(): Promise<CryptoKey> {
     const key = await crypto.subtle.generateKey(
@@ -140,7 +141,6 @@ export class DataService {
           type: MIME
         });
         const file = new File([blob], 'decompressedFile');
-        this.openFileInANewTab(decompressedData, 'Pippo', MIME).then(() => { console.log('File opened in a new tab') });
         resolve(file);
       } catch (error) {
         console.error('Error decompressing data:', error);
@@ -149,7 +149,7 @@ export class DataService {
     });
   }
 
-  async encryptData(compressedData: Uint8Array): Promise<{iv: Uint8Array, encrypted: Uint8Array}> {
+  async encryptData(compressedData: Uint8Array): Promise<EncryptedData> {
     if (!this.sessionKey) {
       throw new Error('Session key not set');
     }
@@ -162,10 +162,10 @@ export class DataService {
       this.sessionKey,
       compressedData
     );
-    return {iv, encrypted: new Uint8Array(encrypted)};
+    return {iv: Array.from(iv), encrypted: btoa(String.fromCharCode(... new Uint8Array(encrypted)))};
   }
 
-  async decryptData(encryptedData: {iv: Uint8Array,  encrypted: Uint8Array}): Promise<Uint8Array> {
+  async decryptData(encryptedData: EncryptedData): Promise<Uint8Array> {
     if (!this.sessionKey) {
       throw new Error('Session key not set');
     }
@@ -173,93 +173,33 @@ export class DataService {
       const decrypted = await crypto.subtle.decrypt(
         {
           name: 'AES-GCM',
-          iv: encryptedData.iv,
+          iv: Uint8Array.from(encryptedData.iv),
         },
         this.sessionKey,
-        encryptedData.encrypted
+        Uint8Array.from(atob(encryptedData.encrypted).split("").map(char => char.charCodeAt(0)))
       );
       return new Uint8Array(decrypted);
     } catch (error) {
       console.error('Error decrypting data:', error);
       throw error;
     }
-    
-  }
 
-  // Function to test, TODO remove later
-  async fileToUint8Array(file: File): Promise<Uint8Array> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        resolve(new Uint8Array(event.target!!.result as ArrayBuffer));
-      };
-      reader.onerror = (error) => {
-        reject(error);
-      };
-      reader.readAsArrayBuffer(file);
-    });
   }
-
-  compareUint8Arrays(arr1: Uint8Array, arr2: Uint8Array): boolean {
-    if (arr1.length !== arr2.length) return false;
-    for (let i = 0; i < arr1.length; i++) {
-      if (arr1[i] !== arr2[i]) return false;
-    }
-    return true;
-  }
-
-  // to test whether the decryption/decompression is correct
-  async openFileInANewTab(decryptedData: Uint8Array, fileName: string, mimeType: string) {
-    // Create a Blob from the decrypted data
-    const blob = new Blob([decryptedData], { type: mimeType });
-  
-    // Create an object URL for the Blob
-    const url = URL.createObjectURL(blob);
-  
-    // Create a new link element
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-  
-    // Simulate a click to open the file in a new tab
-    window.open(url, '_blank');
-  
-    // Revoke the object URL to free up memory
-    URL.revokeObjectURL(url);
-  }
-  
-  
-    
 
   async uploadData(files: File[]): Promise<Observable<any>> {
     const formData = new FormData();
     const encryptedDataPromises = files.map(async (file) => {
-      // from File to Uint8Array
-      const fileUncompressed = await this.fileToUint8Array(file);
       const compressedData = await this.compressData(file);
-      const encryptedData = await this.encryptData(compressedData);
-      // ToDo remove later
-      const decryptedData = await this.decryptData(encryptedData);
-      const decompressData = await this.decompressData(decryptedData, file.type);
-      console.log('Decrypted !== fileUncompressed', !this.compareUint8Arrays(decryptedData, fileUncompressed));
-      
-      
-      return JSON.stringify(encryptedData);
+      const encryptedData: EncryptedData = await this.encryptData(compressedData);
+      return encryptedData;
     });
     const encryptedDataArray = await Promise.all(encryptedDataPromises);
     encryptedDataArray.forEach((encryptedData, index) => {
-      const blob = new Blob([encryptedData], {
+      const blob = new Blob([JSON.stringify(encryptedData)], {
         type: 'application/octet-stream',
       });
       formData.append('file', blob, files[index].name);
     });
-    return this.postData(formData);
-  }
-
-  async sendFile(file: File): Promise<Observable<any>> {
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-    
     return this.postData(formData);
   }
 }
