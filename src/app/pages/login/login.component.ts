@@ -27,6 +27,7 @@ export class LoginComponent {
         this.error = '';
       },
       error: (error) => {
+        console.error('login error', error);
         this.error = error.error || '';
       }
     });

@@ -18,6 +18,11 @@
           Modified At
         </th>
         <th
+          class="py-2 px-4 border-b-2 border-gray-300 leading-tight text-center"
+        >
+          Size
+        </th>
+        <th
           class="py-2 px-4 border-b-2 border-gray-300 text-left leading-tight"
         >
           Actions
@@ -40,6 +45,9 @@
         </td>
         <td class="py-2 px-4 border-b border-gray-300">
           {{ element.updatedAt }}
+        </td>
+        <td class="py-2 px-4 border-b border-gray-300 text-end">
+          {{ formatBytes(element.size) }}
         </td>
         <td class="py-2 px-4 border-b border-gray-300">
           <button

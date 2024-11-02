@@ -10,6 +10,8 @@ interface Data {
   fileName: string;
   createdAt: string;
   updatedAt: string;
+  size: number;
+  type: string;
 }
 
 @Component({
@@ -35,7 +37,7 @@ export class DashboardComponent implements OnInit {
       .catch((error) => console.error('error while sending key', error));
     this.dataService.getData().subscribe((data) => {
       // FIXME: Error while data is {}
-      // FIXME 2: Change myData type to FileData[]
+      // FIXME: Change myData type to FileData[]
       this.myData = data.map((el: Data) => {
         el.createdAt = new Date(el.createdAt).toLocaleDateString();
         el.updatedAt = new Date(el.updatedAt).toLocaleDateString();
@@ -135,5 +137,21 @@ export class DashboardComponent implements OnInit {
         i % maxElement ? (r[r.length - 1].push(e), r) : (r.push([e]), r),
       []
     );
+  }
+
+  /**
+   * format bytes
+   * @param bytes (File size in bytes)
+   * @param decimals (Decimals point)
+   */
+  formatBytes(bytes: number, decimals = 2) {
+    if (bytes === 0) {
+      return "0 Bytes";
+    }
+    const k = 1024;
+    const dm = decimals <= 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
 }

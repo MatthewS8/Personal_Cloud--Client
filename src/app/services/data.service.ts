@@ -7,6 +7,8 @@ import * as pako from 'pako';
 interface EncryptedData {
   iv: number[];
   encrypted: string;
+  fileType: string;
+  lastModified: number;
 }
 
 @Injectable({
@@ -133,12 +135,12 @@ export class DataService {
     });
   }
 
-  decompressData(compressedData: Uint8Array, MIME: string): Promise<File> {
+  decompressData(compressedData: Uint8Array, type: string): Promise<File> {
     return new Promise((resolve, reject) => {
       try {
         const decompressedData = pako.inflate(compressedData);
         const blob = new Blob([decompressedData], {
-          type: MIME
+          type: type
         });
         const file = new File([blob], 'decompressedFile');
         resolve(file);
@@ -149,7 +151,7 @@ export class DataService {
     });
   }
 
-  async encryptData(compressedData: Uint8Array): Promise<EncryptedData> {
+  async encryptData(compressedData: Uint8Array, fileType: string, lastModified: number): Promise<EncryptedData> {
     if (!this.sessionKey) {
       throw new Error('Session key not set');
     }
@@ -162,7 +164,7 @@ export class DataService {
       this.sessionKey,
       compressedData
     );
-    return {iv: Array.from(iv), encrypted: btoa(String.fromCharCode(... new Uint8Array(encrypted)))};
+    return {iv: Array.from(iv), encrypted: btoa(String.fromCharCode(... new Uint8Array(encrypted))), fileType, lastModified}; // Include fileType
   }
 
   async decryptData(encryptedData: EncryptedData): Promise<Uint8Array> {
@@ -190,7 +192,7 @@ export class DataService {
     const formData = new FormData();
     const encryptedDataPromises = files.map(async (file) => {
       const compressedData = await this.compressData(file);
-      const encryptedData: EncryptedData = await this.encryptData(compressedData);
+      const encryptedData: EncryptedData = await this.encryptData(compressedData, file.type, file.lastModified);
       return encryptedData;
     });
     const encryptedDataArray = await Promise.all(encryptedDataPromises);
@@ -212,4 +214,6 @@ export interface FileData {
   ownerId: number;
   updatedAt: string;
   uuid: string;
+  size: number;
+  type: string;
 }
