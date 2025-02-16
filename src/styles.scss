@@ -1,13 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@use "tailwindcss";
+
 :root {
     --primary-color: lightblue;
     --background-color: #f6f6f6;
     --text-color: #000000;
   }
-  
+
 [data-theme="dark"] {
 --primary-color: #4800f0;
 --background-color: #121212;
