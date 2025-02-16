@@ -1,6 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ContentChild, ElementRef, EventEmitter, Output, Renderer2 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, ContentChild, ElementRef, EventEmitter, Output, Renderer2 } from '@angular/core';
 
 
 @Component({
@@ -21,7 +20,7 @@ export class DropzoneComponent implements AfterViewInit {
     this.hasContent = !!this.content;
     this.cdr.detectChanges();
   }
-  
+
 
   onDragOver(event: DragEvent) {
     event.preventDefault();

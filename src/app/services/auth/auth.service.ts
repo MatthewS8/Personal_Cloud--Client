@@ -28,7 +28,7 @@ export class AuthService {
         console.log('login response ', response);
         // save in localStorage
         localStorage.setItem(this.tokenKey, response.token);
-        localStorage.setItem('server_public_key', response.public_key)
+        localStorage.setItem('server_public_key', response.public_key);
       })
     );
   }

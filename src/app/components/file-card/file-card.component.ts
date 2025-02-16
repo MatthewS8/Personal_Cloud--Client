@@ -10,4 +10,5 @@ import { Component, ContentChild, ElementRef, Input } from '@angular/core';
 export class FileCardComponent {
   @ContentChild('action', { static: false }) content: ElementRef | undefined;
   @Input() title: string = '';
+  @Input() progress: number = 0;
 }

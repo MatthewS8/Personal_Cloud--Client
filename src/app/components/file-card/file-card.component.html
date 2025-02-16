@@ -2,7 +2,5 @@
     <img src="assets/icons8-file-150.svg" alt="file icon" class="w-16 h-16 mx-auto hover:bg-gray-100">
     <span class="truncate block">{{title}}</span>
     <ng-content></ng-content>
-    <!-- <button class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 border border-black-500 text-white p-1 rounded hidden group-hover:block" (click)="deleteElement()">
-        <img src="assets/bin-icon.svg" alt="delete" class="w-4 h-4">
-    </button> -->
+    <div class="progress-bar" [style.width.%]="progress"></div>
 </div>

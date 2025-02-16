@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { firstValueFrom, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as pako from 'pako';
-
+import { FileData } from '../types/types';
 
 interface EncryptedData {
   iv: number[];
   encrypted: string;
-  fileType: string;
-  lastModified: number;
 }
 
 @Injectable({
@@ -16,6 +15,7 @@ interface EncryptedData {
 })
 export class DataService {
   private apiUrl = 'http://localhost:3000';
+  private readonly CHUNK_SIZE = 64 * 1024; // 64 KB
   private sessionKey: CryptoKey | undefined = undefined;
   constructor(private http: HttpClient) {}
 
@@ -35,16 +35,17 @@ export class DataService {
   downloadData(uuid: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/myFiles/download/${uuid}`, {
       responseType: 'blob',
+      observe: 'response',
     });
   }
 
   postSessionKey(sessionKey: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/user/session-key`, {sessionKey});
+    return this.http.post(`${this.apiUrl}/user/session-key`, { sessionKey });
   }
 
   // Session Key
   getServerPublicKey(): string {
-    return localStorage.getItem('server_public_key')!!;
+    return localStorage.getItem('server_public_key')!;
   }
 
   str2ab(str: string): ArrayBuffer {
@@ -59,7 +60,10 @@ export class DataService {
   async importPublicKey(pem: string): Promise<CryptoKey> {
     const pemHeader = '-----BEGIN PUBLIC KEY-----';
     const pemFooter = '-----END PUBLIC KEY-----';
-    const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
+    const pemContents = pem.substring(
+      pemHeader.length,
+      pem.length - pemFooter.length
+    );
     const binaryDerString = pemContents.replace(/\s+/g, '');
     const binaryDer = this.str2ab(window.atob(binaryDerString));
 
@@ -75,23 +79,23 @@ export class DataService {
     );
   }
 
-  // Just to test if the key is correctly trasmitted
+  // Just to test if the key is correctly transmitted
   async importPredefinedKey(keyString: string) {
     const keyData = new TextEncoder().encode(keyString.padEnd(32, ' '));
-    return crypto.subtle.importKey(
-      'raw',
-      keyData,
-      'AES-GCM',
-      true,
-      ['encrypt', 'decrypt']
-    );
+    return crypto.subtle.importKey('raw', keyData, 'AES-GCM', true, [
+      'encrypt',
+      'decrypt',
+    ]);
   }
 
   async sendSessionKey(): Promise<Observable<any>> {
     const publicKeyPem = this.getServerPublicKey();
     const publicKey = await this.importPublicKey(publicKeyPem);
     this.sessionKey = await this.generateSessionKey();
-    const symmetricKeyRaw = await crypto.subtle.exportKey('raw', this.sessionKey);
+    const symmetricKeyRaw = await crypto.subtle.exportKey(
+      'raw',
+      this.sessionKey
+    );
 
     const encryptedKey = await crypto.subtle.encrypt(
       { name: 'RSA-OAEP' },
@@ -99,7 +103,9 @@ export class DataService {
       symmetricKeyRaw
     );
 
-    const encryptedKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(encryptedKey)));
+    const encryptedKeyBase64 = btoa(
+      String.fromCharCode(...new Uint8Array(encryptedKey))
+    );
 
     return this.postSessionKey(encryptedKeyBase64);
   }
@@ -121,7 +127,7 @@ export class DataService {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const fileData = new Uint8Array(event.target!!.result as ArrayBuffer);
+        const fileData = new Uint8Array(event.target!.result as ArrayBuffer);
         const compressedData = pako.deflate(fileData);
         resolve(compressedData);
       };
@@ -140,7 +146,7 @@ export class DataService {
       try {
         const decompressedData = pako.inflate(compressedData);
         const blob = new Blob([decompressedData], {
-          type: type
+          type: type,
         });
         const file = new File([blob], 'decompressedFile');
         resolve(file);
@@ -151,7 +157,7 @@ export class DataService {
     });
   }
 
-  async encryptData(compressedData: Uint8Array, fileType: string, lastModified: number): Promise<EncryptedData> {
+  async encryptData(compressedData: Uint8Array): Promise<EncryptedData> {
     if (!this.sessionKey) {
       throw new Error('Session key not set');
     }
@@ -164,7 +170,10 @@ export class DataService {
       this.sessionKey,
       compressedData
     );
-    return {iv: Array.from(iv), encrypted: btoa(String.fromCharCode(... new Uint8Array(encrypted))), fileType, lastModified}; // Include fileType
+    return {
+      iv: Array.from(iv),
+      encrypted: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
+    };
   }
 
   async decryptData(encryptedData: EncryptedData): Promise<Uint8Array> {
@@ -178,42 +187,128 @@ export class DataService {
           iv: Uint8Array.from(encryptedData.iv),
         },
         this.sessionKey,
-        Uint8Array.from(atob(encryptedData.encrypted).split("").map(char => char.charCodeAt(0)))
+        Uint8Array.from(
+          atob(encryptedData.encrypted)
+            .split('')
+            .map((char) => char.charCodeAt(0))
+        )
       );
       return new Uint8Array(decrypted);
     } catch (error) {
       console.error('Error decrypting data:', error);
       throw error;
     }
-
   }
 
-  async uploadData(files: File[]): Promise<Observable<any>> {
-    const formData = new FormData();
-    const encryptedDataPromises = files.map(async (file) => {
-      const compressedData = await this.compressData(file);
-      const encryptedData: EncryptedData = await this.encryptData(compressedData, file.type, file.lastModified);
-      return encryptedData;
+  uploadChunk(file: File, fileId: number, chunkIndex: number, totalChunks: number): Observable<{ status: string; percentage?: number }> {
+    const start = chunkIndex * this.CHUNK_SIZE;
+    const end = Math.min(start + this.CHUNK_SIZE, file.size);
+    const chunk = file.slice(start, end);
+
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(chunk);
+
+    return new Observable((observer) => {
+      reader.onload = async () => {
+        const data = new Uint8Array(reader.result as ArrayBuffer);
+        const compressedData = pako.deflate(data);
+        const { iv, encrypted } = await this.encryptData(compressedData);
+        const formData = new FormData();
+        formData.append('iv', JSON.stringify(iv));
+        formData.append('encrypted', encrypted);
+        formData.append('originalSize', data.length.toString());
+        formData.append('compressedSize', compressedData.length.toString());
+        formData.append('encryptedSize', encrypted.length.toString());
+        formData.append('fileId', fileId.toString());
+        formData.append('chunkIndex', chunkIndex.toString());
+        formData.append('totalChunks', totalChunks.toString());
+        formData.append('fileName', file.name);
+        formData.append('fileType', file.type);
+        formData.append('lastModified', file.lastModified.toString());
+        this.http
+          .post(`${this.apiUrl}/uploads/upload-chunk`, formData, {reportProgress: true, observe: 'events'})
+          .pipe(
+            map((event) => {
+              if (event.type === HttpEventType.UploadProgress) {
+                observer.next({
+                  status: 'progress',
+                  percentage: event.total ? Math.round((100 * event.loaded) / event.total) : 0,
+                });
+              } else if (event.type === HttpEventType.Response) {
+                observer.next(event.body as { status: string; percentage?: number });
+                observer.complete();
+              }
+            })
+          )
+          .subscribe();
+      };
     });
-    const encryptedDataArray = await Promise.all(encryptedDataPromises);
-    encryptedDataArray.forEach((encryptedData, index) => {
-      const blob = new Blob([JSON.stringify(encryptedData)], {
-        type: 'application/octet-stream',
+  }
+  uploadFile(file: File, fileId: number): Observable<any> {
+    // FIXME if uploading multiple files, data is corrupted, seems to be last chunk of each file
+    const totalChunks = Math.ceil(file.size / this.CHUNK_SIZE);
+    const uploadPromises: Observable<any>[] = [];
+    for (let i = 0; i < totalChunks; i++) {
+      uploadPromises.push(this.uploadChunk(file, fileId, i, totalChunks));
+    }
+    return new Observable((observer) => {
+      Promise.all(uploadPromises.map((obs) => firstValueFrom(obs)))
+        .then((responses) => {
+          observer.next(responses);
+          observer.complete();
+        })
+        .catch((err) => observer.error(err));
+    });
+  }
+
+  downloadFile(uuid: string): Observable<File> {
+    return new Observable((observer) => {
+      this.downloadData(uuid).subscribe({
+        next: async (response) => {
+          const reader = response.body!.stream().getReader();
+          const chunks: Uint8Array[] = [];
+          let acc = '';
+          let done = false;
+
+          while (!done) {
+            const { value, done: readerDone } = await reader.read();
+            if (readerDone) {
+              done = true;
+              break;
+            }
+            acc += new TextDecoder().decode(value);
+            let boundary = acc.indexOf('}');
+            while (boundary !== -1) {
+              const chunkStr = acc.substring(0, boundary + 1);
+              acc = acc.substring(boundary + 1);
+              boundary = acc.indexOf('}');
+              try {
+                const encryptedChunk: EncryptedData = JSON.parse(chunkStr);
+                const decryptedChunk = await this.decryptData(encryptedChunk);
+                const decompressedChunk = pako.inflate(decryptedChunk);
+                chunks.push(decompressedChunk);
+              } catch (error) {
+                console.error('Error processing chunk:', error);
+                observer.error('Error processing file');
+                return;
+              }
+            }
+          }
+
+          const blob = new Blob(chunks, { type: 'application/octet-stream' });
+          const file = new File([blob], response.headers.get('filename') || 'downloadedFile', {
+            type: response.headers.get('fileType') || 'application/octet-stream',
+            lastModified: parseInt(response.headers.get('lastModified') || '0', 10),
+          });
+
+          observer.next(file);
+          observer.complete();
+        },
+        error: (error) => {
+          observer.error(error);
+        }
       });
-      formData.append('file', blob, files[index].name);
     });
-    return this.postData(formData);
   }
-}
 
-export interface FileData {
-  createdAt: string;
-  fileID: number;
-  fileName: string;
-  filePath: string;
-  ownerId: number;
-  updatedAt: string;
-  uuid: string;
-  size: number;
-  type: string;
 }

@@ -35,7 +35,7 @@
         <td class="py-2 px-4 border-b border-gray-300">
           <div
             class="text-blue-500 underline cursor-pointer"
-            (click)="openInANewTab(element.uuid)"
+            (click)="openInANewTab(element)"
           >
             {{ element.fileName }}
           </div>
@@ -59,7 +59,7 @@
           </button>
           <button
             class="text-blue-500 hover:text-blue-700 pl-4"
-            (click)="onDownload(element.uuid)"
+            (click)="onDownload(element)"
           >
             <!-- TODO: insert download icon here -->
             Download
@@ -91,23 +91,40 @@
   class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75"
 >
   <div class="bg-white p-8 rounded shadow-lg h-3/4 w-3/4">
-    <h2 class="text-xl mb-4">Upload Files</h2>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl">Upload Files</h2>
+      @if(!isUploading() && filesToUpload && filesToUpload.length > 0) {
+      <label for="file-upload" class="custom-file-upload">
+        Browse
+        <input
+          id="file-upload"
+          type="file"
+          (change)="onFileSelected($event)"
+          multiple
+        />
+      </label>
+      }
+    </div>
     <app-dropzone (filesUploaded)="onFilesDropped($event)">
       <div class="mt-4">
         <ul class="flex flex-wrap">
-          @for (file of uploadedFiles; track file.name) {
-            <li class="mr-4 mb-4">
-              <app-file-card [title]="file.name">
-                <div #action>
-                  <button class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 border border-black-500 text-white p-1 rounded hidden group-hover:block" (click)="deleteElement(file.name)">
-                    <img src="assets/bin-icon.svg" alt="delete" class="w-4 h-4">
-                  </button>
-                </div>
-              </app-file-card>
-            </li>
+          @for (file of filesToUpload; track file.name) {
+          <li class="mr-4 mb-4">
+            <app-file-card [title]="file.name">
+              <div #action>
+                <button
+                  class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 border border-black-500 text-white p-1 rounded hidden group-hover:block"
+                  (click)="deleteElement(file.name)"
+                >
+                  <img src="assets/bin-icon.svg" alt="delete" class="w-4 h-4" />
+                </button>
+              </div>
+            </app-file-card>
+          </li>
           }
         </ul>
       </div>
+      @if(!filesToUpload || filesToUpload.length === 0) {
       <div #content class="flex flex-col justify-center items-center h-full">
         <p>Drop your files here!</p>
         <label for="file-upload" class="custom-file-upload">
@@ -120,6 +137,7 @@
           />
         </label>
       </div>
+      }
     </app-dropzone>
     <div class="mt-4 flex justify-end">
       <button
@@ -129,9 +147,11 @@
         Cancel
       </button>
       <button
-        [disabled]="uploadedFiles!!.length === 0"
+        [disabled]="
+          !filesToUpload || filesToUpload.length === 0 || isUploading()
+        "
         class="bg-green-500 text-white py-2 px-4 rounded"
-        (click)="onUploadClicked()"
+        (click)="uploadFiles()"
       >
         Upload
       </button>

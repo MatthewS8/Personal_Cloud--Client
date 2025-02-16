@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from '@services/theme.service';
 
@@ -11,19 +11,14 @@ import { ThemeService } from '@services/theme.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'Personal_Cloud';
-  repoLink = 'https://github.com/MatthewS8'
+  repoLink = 'https://github.com/MatthewS8';
 
   constructor(private themeService: ThemeService) {}
-
-  ngOnInit() {
-    // this.updateThemeIcon();
-  }
 
   public toggleTheme() {
     console.log('Button clicked');
     this.themeService.toggleTheme();
-    // this.updateThemeIcon();
   }
 }
