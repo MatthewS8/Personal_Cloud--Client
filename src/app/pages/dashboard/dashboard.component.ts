@@ -140,7 +140,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isUploading.set(true);
     this.filesToUpload?.forEach((file, index) => {
       this.uploadProgress[index] = { status: 'progress', percentage: 0 };
-      this.dataService.uploadFile(file, index).subscribe({
+      this.dataService.uploadFile(file).subscribe({
         next: (progress) => {
           this.uploadProgress[index] = progress;
         },

@@ -3,7 +3,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as pako from 'pako';
-import { FileData } from '../types/types';
+import { FileData, ProgressStatus } from '../types/types';
 
 interface EncryptedData {
   iv: number[];
@@ -15,7 +15,7 @@ interface EncryptedData {
 })
 export class DataService {
   private apiUrl = 'http://localhost:3000';
-  private readonly CHUNK_SIZE = 64 * 1024; // 64 KB
+  public readonly CHUNK_SIZE = 64 * 1024; // 64 KB
   private sessionKey: CryptoKey | undefined = undefined;
   constructor(private http: HttpClient) {}
 
@@ -200,7 +200,7 @@ export class DataService {
     }
   }
 
-  uploadChunk(file: File, fileId: number, chunkIndex: number, totalChunks: number): Observable<{ status: string; percentage?: number }> {
+  uploadChunk(file: File, chunkIndex: number, totalChunks: number): Observable<ProgressStatus> {
     const start = chunkIndex * this.CHUNK_SIZE;
     const end = Math.min(start + this.CHUNK_SIZE, file.size);
     const chunk = file.slice(start, end);
@@ -219,7 +219,6 @@ export class DataService {
         formData.append('originalSize', data.length.toString());
         formData.append('compressedSize', compressedData.length.toString());
         formData.append('encryptedSize', encrypted.length.toString());
-        formData.append('fileId', fileId.toString());
         formData.append('chunkIndex', chunkIndex.toString());
         formData.append('totalChunks', totalChunks.toString());
         formData.append('fileName', file.name);
@@ -229,13 +228,16 @@ export class DataService {
           .post(`${this.apiUrl}/uploads/upload-chunk`, formData, {reportProgress: true, observe: 'events'})
           .pipe(
             map((event) => {
+              console.log(" ******* ", file.name, "@", chunkIndex, " - ", chunkIndex, "/", totalChunks, " ******* ");
               if (event.type === HttpEventType.UploadProgress) {
+                console.log("UPLOAD CHUNK for file", file.name, "chunk", chunkIndex, "progress ", event.loaded, "/", event.total);
                 observer.next({
                   status: 'progress',
                   percentage: event.total ? Math.round((100 * event.loaded) / event.total) : 0,
                 });
               } else if (event.type === HttpEventType.Response) {
-                observer.next(event.body as { status: string; percentage?: number });
+                console.log("UPLOAD CHUNK for file", file.name, "chunk", chunkIndex, "response ", event.body);
+                observer.next(event.body as ProgressStatus);
                 observer.complete();
               }
             })
@@ -244,20 +246,24 @@ export class DataService {
       };
     });
   }
-  uploadFile(file: File, fileId: number): Observable<any> {
+  uploadFile(file: File): Observable<any> {
     // FIXME if uploading multiple files, data is corrupted, seems to be last chunk of each file
     const totalChunks = Math.ceil(file.size / this.CHUNK_SIZE);
-    const uploadPromises: Observable<any>[] = [];
+    const uploadPromises: Observable<ProgressStatus>[] = [];
     for (let i = 0; i < totalChunks; i++) {
-      uploadPromises.push(this.uploadChunk(file, fileId, i, totalChunks));
+      uploadPromises.push(this.uploadChunk(file, i, totalChunks));
     }
     return new Observable((observer) => {
       Promise.all(uploadPromises.map((obs) => firstValueFrom(obs)))
         .then((responses) => {
+          console.log("for file", file.name, "with ", totalChunks, " chunks, responses ", responses);
           observer.next(responses);
           observer.complete();
         })
-        .catch((err) => observer.error(err));
+        .catch((err) => {
+          console.error('Error uploading file:', file, err);
+          observer.error(err);
+        });
     });
   }
 
@@ -294,6 +300,7 @@ export class DataService {
               }
             }
           }
+          console.log("Downloaded chunks ", chunks.length);
 
           const blob = new Blob(chunks, { type: 'application/octet-stream' });
           const file = new File([blob], response.headers.get('filename') || 'downloadedFile', {
