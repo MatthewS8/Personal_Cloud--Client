@@ -1,9 +1,17 @@
 {
-    "workbench.colorCustomizations": {
-      "titleBar.activeBackground": "#169af2",
-      "titleBar.inactiveBackground": "#1262ac",
-  
-      "titleBar.activeForeground": "#000"
-    }
-  }
-  
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#169af2",
+    "titleBar.inactiveBackground": "#1262ac",
+
+    "titleBar.activeForeground": "#000"
+  },
+  "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "javascript": "javascript",
+    "css": "css"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.formatOnSave": true
+}

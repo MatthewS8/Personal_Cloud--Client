@@ -2,8 +2,6 @@
 build
 coverage
 
-# Ignore all HTML files:
-*.html
 
 # Ignore specific files:
 src/assets/*.svg
