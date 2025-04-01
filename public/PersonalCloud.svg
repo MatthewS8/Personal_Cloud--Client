@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Thanks to joypixels: https://github.com/joypixels/emojione for the starting icon-->
+
+<svg
+   width="377.17947"
+   height="34.228001"
+   viewBox="0 0 30.174358 2.73824"
+   aria-hidden="true"
+   role="img"
+   class="iconify iconify--emojione"
+   preserveAspectRatio="xMidYMid"
+   version="1.1"
+   id="svg2"
+   sodipodi:docname="PersonalCloud.svg"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient3"
+       inkscape:swatch="gradient">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop3" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop4" />
+    </linearGradient>
+    <linearGradient
+       id="swatch60">
+      <stop
+         style="stop-color:#6688bb;stop-opacity:1;"
+         offset="0"
+         id="stop61" />
+      <stop
+         style="stop-color:#334466;stop-opacity:1;"
+         offset="0.75"
+         id="stop64" />
+      <stop
+         style="stop-color:#222222;stop-opacity:1;"
+         offset="1"
+         id="stop62" />
+    </linearGradient>
+    <linearGradient
+       id="swatch31"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#c32c29;stop-opacity:1;"
+         offset="0"
+         id="stop31" />
+    </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath52">
+      <path
+         id="path52"
+         style="stroke-width:0.1;stroke-linecap:square;paint-order:markers fill stroke;stop-color:#000000"
+         d="m -880.82767,-187.29769 h 1640.84 v 73.28155 h -1640.84 z" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1"
+       id="linearGradient2"
+       x1="18.002703"
+       y1="47.397614"
+       x2="48.177074"
+       y2="47.397614"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-18.002695,-46.092406)"
+       spreadMethod="reflect" />
+    <linearGradient
+       id="linearGradient1"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#3899da;stop-opacity:1;"
+         offset="0.33888048"
+         id="stop1" />
+      <stop
+         style="stop-color:#78add1;stop-opacity:1;"
+         offset="0.66944027"
+         id="stop5" />
+      <stop
+         style="stop-color:#b9c2c8;stop-opacity:1;"
+         offset="1"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3"
+       id="linearGradient5"
+       gradientUnits="userSpaceOnUse"
+       x1="-2.0857799"
+       y1="1.2491252"
+       x2="32.260136"
+       y2="1.2491252" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview2"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="2.8531759"
+     inkscape:cx="197.8497"
+     inkscape:cy="6.8344893"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <text
+     xml:space="preserve"
+     style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.84693px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Bold Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;mix-blend-mode:normal;fill:url(#linearGradient2);fill-opacity:1;stroke:#000000;stroke-width:0.08;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     x="-0.084527269"
+     y="2.4923418"
+     id="text2"><tspan
+       style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.84693px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;fill:url(#linearGradient2);fill-opacity:1;stroke:#000000;stroke-width:0.08;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       x="-0.084527269"
+       y="2.4923418"
+       sodipodi:role="line"
+       id="tspan1">PersonalCloud</tspan></text>
+</svg>
