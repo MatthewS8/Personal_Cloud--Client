@@ -1,19 +1,19 @@
-import { Injectable } from '@angular/core';
-import { OverlayContainer } from '@angular/cdk/overlay';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
-  private isDarkTheme = false;
+  private readonly themeKey = 'theme';
 
-  constructor(private overlayContainer: OverlayContainer) {}
+  isDarkTheme: WritableSignal<boolean> = signal(this.loadTheme());
 
   toggleTheme(): void {
-    this.isDarkTheme = !this.isDarkTheme;
-    const themeClass = this.isDarkTheme ? 'dark-theme' : 'light-theme';
-    const overlayContainerClasses = this.overlayContainer.getContainerElement().classList;
-    overlayContainerClasses.remove('dark-theme', 'light-theme');
-    overlayContainerClasses.add(themeClass);
+    this.isDarkTheme.set(!this.isDarkTheme());
+    localStorage.setItem(this.themeKey, this.isDarkTheme() ? 'dark' : 'light');
+  }
+
+  private loadTheme(): boolean {
+    return localStorage.getItem(this.themeKey) === 'dark';
   }
 }

@@ -1,18 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
-@use "tailwindcss";
+@use 'tailwindcss' as *;
 
-:root {
-    --primary-color: lightblue;
-    --background-color: #f6f6f6;
-    --text-color: #000000;
-  }
-
-[data-theme="dark"] {
---primary-color: #4800f0;
---background-color: #121212;
---text-color: #ffffff;
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+  --color-background: #ecf0f1;
+  --color-text: #2c3e50;
+  --color-primary: #3498db;
+  --color-secondary: #bdc3c7;
+  --color-accent: #f1c40f;
 
+  --color-dark-background: #2c3e50;
+  --color-dark-text: #ecf0f1;
+  --color-dark-primary: #2980b9;
+  --color-dark-secondary: #95a5a6;
+  --color-dark-accent: #f39c12;
+}

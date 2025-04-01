@@ -1,8 +1,12 @@
-body {
-    background-color: var(--background-color);
-    color: var(--text-color);
+@keyframes rotateEffect {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .primary {
-    background-color: var(--primary-color);
+  100% {
+    transform: rotate(360deg);
   }
+}
+
+.rotate-animation {
+  animation: rotateEffect 0.5s ease-in-out; /* Runs for 0.5 seconds */
+}

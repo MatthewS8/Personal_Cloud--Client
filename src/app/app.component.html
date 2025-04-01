@@ -1,18 +1,39 @@
-<header>
-  <!-- FIXME -->
-  <!-- <button id="theme-toggle" class="absolute top-2.5 right-2.5 bg-none border-none cursor-pointer" (click)="toggleTheme()">
-     Light/Dark
-  </button> -->
-</header>
-<body class="light-theme">
-  <router-outlet></router-outlet>
-</body>
+<div
+  class="bg-background dark:bg-dark-background from-background to-primary dark:to-dark-background h-full bg-radial transition-colors duration-500 dark:from-slate-600"
+>
+  <header class="flex flex-row px-4 pt-2">
+    <div class="basis-96/100">
+      <img class="inline-block h-8" src="LogoPersonalCloud.svg" />
+    </div>
+    <button
+      class="basis-4/100 cursor-pointer justify-self-end overflow-hidden rounded-full"
+      (click)="toggleTheme()"
+    >
+      <div
+        class="my-auto h-full w-full transition-transform duration-500"
+        [ngClass]="{ 'rotate-animation': isAnimating }"
+      >
+        @if (!isDarkTheme()) {
+          <span class="text-2xl">🌞</span>
+        } @else {
+          <span class="text-2xl">🌜</span>
+        }
+      </div>
+    </button>
+  </header>
+  <body class="h-full">
+    <router-outlet></router-outlet>
+  </body>
 
-
-<footer class="absolute bottom-2.5 w-full text-center text-gray-500 flex justify-center items-center space-x-2">
-  <span>Created by Matteo Stefanelli</span>
-  <a [href]="repoLink" class="flex items-center">
-    <img class="h-5 inline-block" src="assets/github-brands-solid.svg" />
-  </a>
-  <span>2024 MIT License</span>
-</footer>
+  <footer
+    class="text-text/80 dark:text-dark-text/80 absolute bottom-2.5 flex w-full items-center justify-center space-x-2 text-center"
+  >
+    <span class="text-text dark:text-dark-text">
+      Created by Matteo Stefanelli
+    </span>
+    <a [href]="repoLink" class="flex items-center">
+      <img class="inline-block h-5" src="assets/github-brands-solid.svg" />
+    </a>
+    <span>2025 MIT License</span>
+  </footer>
+</div>

@@ -40,6 +40,7 @@ export class DataService {
   }
 
   postSessionKey(sessionKey: string): Observable<any> {
+    console.log("session key send");
     return this.http.post(`${this.apiUrl}/user/session-key`, { sessionKey });
   }
 
@@ -58,6 +59,7 @@ export class DataService {
   }
 
   async importPublicKey(pem: string): Promise<CryptoKey> {
+    pem = pem.trim();
     const pemHeader = '-----BEGIN PUBLIC KEY-----';
     const pemFooter = '-----END PUBLIC KEY-----';
     const pemContents = pem.substring(
@@ -89,6 +91,7 @@ export class DataService {
   }
 
   async sendSessionKey(): Promise<Observable<any>> {
+
     const publicKeyPem = this.getServerPublicKey();
     const publicKey = await this.importPublicKey(publicKeyPem);
     this.sessionKey = await this.generateSessionKey();

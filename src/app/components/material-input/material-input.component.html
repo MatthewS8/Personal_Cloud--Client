@@ -1,0 +1,19 @@
+<div class="relative w-full min-w-64" (click)="input.focus()">
+  <!-- FIXME label for is not working -->
+  <input
+    #input
+    [type]="type"
+    [id]="id"
+    [ngModel]="value"
+    (ngModelChange)="valueChange.emit($event)"
+    class="peer focus:border-primary focus:ring-primary text-text w-full rounded-md border border-gray-800 px-3 pt-3 pb-2 focus:ring-1 focus:outline-none dark:border-gray-300 dark:text-gray-300"
+    placeholder=" "
+    (keydown.enter)="enterPressed.emit(id)"
+  />
+  <label
+    [for]="id"
+    class="text-grey-800 peer-focus:text-primary bg-background dark:bg-dark-background absolute -top-3 left-3 cursor-text px-1 text-sm transition-all transition-colors duration-10 peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-3 peer-focus:px-1 peer-focus:text-sm dark:text-gray-300"
+  >
+    {{ label }}
+  </label>
+</div>
