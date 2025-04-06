@@ -14,23 +14,39 @@
         <span>{{ error }}</span>
       </div>
     }
-    <div class="my-2">
-      <app-material-input
-        id="username"
-        label="Username"
-        [(value)]="credentials.username"
-      ></app-material-input>
-    </div>
 
-    <div class="my-4">
-      <app-material-input
-        id="password"
-        label="Password"
-        type="password"
-        [(value)]="credentials.password"
-        (enterPressed)="onLoginClicked()"
-      ></app-material-input>
-    </div>
+    <form [formGroup]="loginFormGroup">
+      <div class="my-2">
+        <app-material-input
+          id="username"
+          label="Username"
+          [formControl]="loginFormGroup.controls.username"
+          [errorMessage]="
+            loginFormGroup.controls.username.invalid &&
+            (loginFormGroup.controls.username.dirty ||
+              loginFormGroup.controls.username.touched)
+              ? 'Username is required'
+              : ''
+          "
+        ></app-material-input>
+      </div>
+
+      <div class="my-4">
+        <app-material-input
+          id="password"
+          label="Password"
+          type="password"
+          [formControl]="loginFormGroup.controls.password"
+          [errorMessage]="
+            loginFormGroup.controls.password.invalid &&
+            (loginFormGroup.controls.password.dirty ||
+              loginFormGroup.controls.password.touched)
+              ? 'Password is required'
+              : ''
+          "
+        ></app-material-input>
+      </div>
+    </form>
 
     <div class="mb-4 text-right">
       <span

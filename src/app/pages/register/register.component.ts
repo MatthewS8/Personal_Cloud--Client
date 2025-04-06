@@ -1,43 +1,76 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { MaterialInputComponent } from '@components/material-input/material-input.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MaterialInputComponent],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
 })
-export class RegisterComponent {
-  public credentials = { username: '', password: '' };
-  public isRegistering = false;
-  public error = '';
-  public repeatedPassword = '';
+export class RegisterComponent implements OnInit {
+  public subs: Subscription[] = [];
+  public error = ''; // TODO remove me
+  public registerFormGroup = new FormGroup({
+    username: new FormControl<string>('', [Validators.required]),
+    password: new FormControl<string>('', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.maxLength(32),
+      /* No need to check password strength for now
+      Validators.pattern(
+         '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}'
+       ), */
+    ]),
+    password_repeat: new FormControl<string>('', [Validators.required]),
+  });
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  public passwordError = '';
-  constructor(private authService: AuthService, private router: Router) {}
+  ngOnInit(): void {
+    this.subs.push(
+      this.registerFormGroup.controls['password_repeat'].valueChanges.subscribe(
+        (value) => {
+          if (value !== this.registerFormGroup.controls['password'].value) {
+            this.registerFormGroup.controls['password_repeat'].setErrors({
+              mismatch: true,
+            });
+          } else {
+            this.registerFormGroup.controls['password_repeat'].setErrors(null);
+          }
+        }
+      )
+    );
+  }
 
+  // TODO
   onRegisterClicked() {
-    this.authService.register(this.credentials.username, this.credentials.password).subscribe({
-      next: (result) => {
-        console.log('register result', result);
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('reg', error);
-        this.error = error?.error || '';
-      }
-    });
-  }
-
-  onRegisterRequested() {
-    this.isRegistering = true;
-  }
-
-  validatePassword() {
-    this.passwordError = this.credentials.password.length < 8 ? 'Password must be at least 8 characters long' : '';
+    // this.authService
+    //   .register(
+    //     this.registerFormGroup.controls['username'],
+    //     this.registerFormGroup.controls['password']!
+    //   )
+    //   .subscribe({
+    //     next: (result) => {
+    //       console.log('register result', result);
+    //       this.router.navigate(['/login']);
+    //     },
+    //     error: (error) => {
+    //       console.error('reg', error);
+    //       this.error = error?.error || '';
+    //     },
+    //   });
   }
 }
