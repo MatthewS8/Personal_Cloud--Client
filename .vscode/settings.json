@@ -11,7 +11,7 @@
     "css": "css"
   },
   "editor.quickSuggestions": {
-    "strings": true
+    "strings": "on"
   },
   "editor.formatOnSave": true
 }

@@ -5,12 +5,12 @@ import { Observable, tap } from 'rxjs';
 import * as CryptoJS from 'crypto-js';
 
 interface LoginResponse {
-    token: string;
-    public_key: string;
+  token: string;
+  public_key: string;
 }
 
 interface RegisterResponse {
-    message: string;    
+  message: string;
 }
 
 @Injectable({
@@ -19,27 +19,40 @@ interface RegisterResponse {
 export class AuthService {
   private tokenKey = 'authToken';
   private apiUrl = 'http://localhost:3000';
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   login(username: string, password: string): Observable<LoginResponse> {
     const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password: hashedPassword }).pipe(
-      tap((response: LoginResponse) => {
-        console.log('login response ', response);
-        // save in localStorage
-        localStorage.setItem(this.tokenKey, response.token);
-        localStorage.setItem('server_public_key', response.public_key);
+    return this.http
+      .post<LoginResponse>(`${this.apiUrl}/login`, {
+        username,
+        password: hashedPassword,
       })
-    );
+      .pipe(
+        tap((response: LoginResponse) => {
+          console.log('login response ', response);
+          // save in localStorage
+          localStorage.setItem(this.tokenKey, response.token);
+          localStorage.setItem('server_public_key', response.public_key);
+        })
+      );
   }
 
   register(username: string, password: string): Observable<RegisterResponse> {
     const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
-    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, { username, password: hashedPassword }).pipe(
-      tap((response: RegisterResponse) => {
-        console.log(response);
+    return this.http
+      .post<RegisterResponse>(`${this.apiUrl}/register`, {
+        username,
+        password: hashedPassword,
       })
-    );
+      .pipe(
+        tap((response: RegisterResponse) => {
+          console.log(response);
+        })
+      );
   }
 
   logout() {
