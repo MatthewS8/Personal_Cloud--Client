@@ -1,16 +1,13 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, Input } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { NoopValueAccessorDirective } from 'src/app/directives/noop-value-accessor-directive.directive';
 
 @Component({
   selector: 'app-material-input',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  hostDirectives: [NoopValueAccessorDirective],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './material-input.component.html',
   styleUrl: './material-input.component.scss',
 })
@@ -18,7 +15,6 @@ export class MaterialInputComponent {
   @Input() id!: string;
   @Input() label!: string;
   @Input() type: 'text' | 'password' = 'text';
-  @Input() value: unknown = '';
-  @Output() valueChange = new EventEmitter<string>();
-  @Output() enterPressed = new EventEmitter<string>();
+  @Input() formControl!: FormControl;
+  @Input() errorMessage: string | undefined;
 }

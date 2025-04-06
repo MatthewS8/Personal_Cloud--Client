@@ -1,0 +1,6 @@
+@layer utilities {
+  .no-color-transition {
+    transition-property: color, background-color;
+    transition-duration: 0ms;
+  }
+}
